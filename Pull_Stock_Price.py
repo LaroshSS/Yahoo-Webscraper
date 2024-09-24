@@ -15,31 +15,31 @@ def get_stock_data(ticker):
         price = price_tag.text if price_tag else "Could not find stock price"
 
         # Find the stock name
-        name_tag = soup.find('h1', {'class': 'D(ib) Fz(18px)'})
+        name_tag = soup.find('h1', {'class': 'yf-vfa1ac'})
         stock_name = name_tag.text if name_tag else "Could not find stock name"
 
         # Find the previous close price
-        prev_close_tag = soup.find('td', {'data-test': 'PREV_CLOSE-value'})
+        prev_close_tag = soup.find('fin-streamer', {'data-field': 'regularMarketPreviousClose'})
         prev_close = prev_close_tag.text if prev_close_tag else "Could not find previous close price"
 
         # Find the open price
-        open_tag = soup.find('fin-streamer', {'data-field': 'regularMarketOpen'})
+        open_tag = soup.find('fin-streamer', {'active-data-field': 'regularMarketOpen'})
         open_price = open_tag.text if open_tag else "Could not find open price"
 
         # Find the day's range
-        days_range_tag = soup.find('td', {'data-test': 'DAYS_RANGE-value'})
+        days_range_tag = soup.find('fin-streamer', {'data-field': 'regularMarketDayRange'})
         days_range = days_range_tag.text if days_range_tag else "Could not find day's range"
 
         # Find the 52 week range
-        week_range_tag = soup.find('td', {'data-test': 'FIFTY_TWO_WK_RANGE-value'})
+        week_range_tag = soup.find('fin-streamer', {'data-field': 'fiftyTwoWeekRange'})
         week_range = week_range_tag.text if week_range_tag else "Could not find 52 week range"
 
         # Find the volume
-        volume_tag = soup.find('td', {'data-test': 'TD_VOLUME-value'})
+        volume_tag = soup.find('fin-streamer', {'data-field': 'regularMarketVolume'})
         volume = volume_tag.text if volume_tag else "Could not find volume"
 
         # Find the market cap
-        market_cap_tag = soup.find('td', {'data-test': 'MARKET_CAP-value'})
+        market_cap_tag = soup.find('fin-streamer', {'data-field': 'marketCap'})
         market_cap = market_cap_tag.text if market_cap_tag else "Could not find market cap"
 
         stock_data = {
@@ -57,19 +57,43 @@ def get_stock_data(ticker):
     else:
         return f"Failed to retrieve data. HTTP Status code: {response.status_code}"
 
-# Example usage
-ticker = input("Enter the stock ticker symbol: ")
-stock_data = get_stock_data(ticker)
+while True:
+    ticker = input("Enter the stock ticker symbol: ")
+    stock_data = get_stock_data(ticker)
 
-if isinstance(stock_data, dict):
-    print("Available data fields:")
-    for key in stock_data.keys():
-        print(key)
+    if isinstance(stock_data, dict):
+        while True:
+            print("Available data fields:")
+            for key in stock_data.keys():
+                print(key)
 
-    field = input("Enter the field you want to retrieve: ")
-    if field in stock_data:
-        print(f"{field}: {stock_data[field]}")
+            field = input("Enter the field you want to retrieve: ")
+            if field in stock_data:
+                print(f"{field}: {stock_data[field]}")
+            else:
+                print("Invalid field.")
+
+            next_action = input("Would you like to check another value for the same stock, input a new ticker, or exit? (check/new/exit): ").strip().lower()
+            if next_action == 'check':
+                continue
+            if next_action == 'new':
+                break
+            if next_action == "exit":
+                exit()
+
+        else:
+            print(stock_data)
+            retry = input("Would you like to re-input the ticker or exit? (yes/exit): ").strip().lower()
+            if retry == 'exit':
+                break
+            if retry != 'yes':
+                break
+        
     else:
-        print("Invalid field.")
-else:
-    print(stock_data)
+        restart = input("Would you like to restart or exit? (yes/exit): ").strip().lower()
+        if restart == 'exit':
+            exit()
+        if restart != 'restart':
+            break
+
+    
